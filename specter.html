@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <link rel="shortcut icon" href="modern-briefcase-icon-cartoon-style-vector.png" type="image/x-icon">
+    <title>SPECTER - My Portfolio</title>
+
+    <!-- Tailwind Play CDN + config -->
+    <script>
+        tailwind = window.tailwind;
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['Orbitron', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace'],
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        'specter-dark': '#0A0E1A',
+                        'specter-card': '#161E33',
+                        'specter-neon': '#00F0FF',
+                        'specter-secondary': '#FF5078',
+                        'specter-light': '#F0F5F9',
+                        'specter-text-dark': '#B0BCE0',
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                },
+            },
+        }
+    </script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <style>
+        .typing-line { border-right: 2px solid #00F0FF; white-space: nowrap; overflow: hidden; }
+        @keyframes typing { from { width: 0 } to { width: 100% } }
+        @keyframes blink-caret { from, to { border-color: transparent } 50% { border-color: #00F0FF; } }
+        .typing-line.animate { animation: typing 1.4s steps(30,end) forwards, blink-caret 0.75s step-end infinite; }
+        /* small helper for initial hidden animated elements */
+        .reveal-init { opacity:0; transform: translateY(24px); transition: all 700ms ease-out; }
+        .reveal-show { opacity:1; transform: translateY(0); }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div id="root"></div>
+
+    <script>
+    (function(){
+        
+        const SVG = {
+            Menu: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"></line><line x1="4" x2="20" y1="6" y2="6"></line><line x1="4" x2="20" y1="18" y2="18"></line></svg>`,
+            X: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`,
+            Sun: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`,
+            Moon: `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>`,
+            Play: `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>`,
+            ArrowRight: `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>`
+        };
+
+        // --- Data ---
+        const PROJECTS_DATA = [
+            { id:1, title:"Real-time Analytics Dashboard", description:"A high-speed, interactive dashboard built using websockets and charts to visualize live data streams. Features dynamic scaling and customizable widget layouts.", tags: ['React','WebSockets','Tailwind CSS','Performance'] },
+            { id:2, title:"Modular Design System (MDS)", description:"Company-wide design system with 50+ reusable components, Storybook-driven docs, and atomic patterns to speed development.", tags: ['TypeScript','React','Storybook','Atomic Design'] },
+            { id:3, title:"Serverless E-Commerce Frontend", description:"Static, SEO-friendly e-commerce frontend with serverless backend integrations, fast checkout flows and accessibility-first design.", tags: ['Next.js','Vercel','SEO','Styled Components'] },
+        ];
+
+        // --- utility for element creation from html ---
+        function htmlToElement(html){
+            const template = document.createElement('template');
+            template.innerHTML = html.trim();
+            return template.content.firstChild;
+        }
+
+        // --- Preloader (typing lines) ---
+        function createPreloader(doneCb){
+            const lines = [
+            "// Initializing Front-End Core...",
+            "// Dependency Check: React, TailwindCSS, JS - [PASS]",
+            "// Loading SPECTER Data Schema...",
+            "// Deploying Portfolio UI: engage animation."
+            ];
+            const overlay = document.createElement('div');
+            // ensure fixed full-screen and prevent background scroll while visible
+            overlay.className = "fixed inset-0 z-[100] flex items-center justify-center bg-specter-dark transition-opacity duration-700 ease-out";
+            overlay.innerHTML = `
+            <div class="font-mono text-specter-neon p-4 sm:p-6 rounded-lg shadow-xl shadow-specter-neon/20 max-w-[92vw] sm:max-w-md w-full max-h-[86vh] overflow-auto">
+                <h1 class="text-lg sm:text-xl mb-4 sm:mb-6 text-specter-neon font-display tracking-widest animate-pulse">SPECTER PORTFOLIO</h1>
+                <pre class="text-left" id="pre-lines"></pre>
+            </div>
+            `;
+            // hide body scroll while preloader is active
+            const prevOverflow = document.body.style.overflow;
+            document.body.style.overflow = 'hidden';
+            document.body.appendChild(overlay);
+            const pre = overlay.querySelector('#pre-lines');
+            // make pre wrapping / scroll-friendly on small screens
+            pre.className = "text-sm sm:text-base whitespace-pre-wrap break-words max-h-[46vh] sm:max-h-[36vh] overflow-y-auto pr-2";
+            let i = 0;
+            function step(){
+            if(i < lines.length){
+                const lineWrap = document.createElement('div');
+                const code = document.createElement('code');
+                // typing-line kept but allow wrapping and avoid huge widths
+                code.className = "block typing-line";
+                code.textContent = lines[i];
+                lineWrap.appendChild(code);
+                pre.appendChild(lineWrap);
+                // keep pre scrolled to bottom as new lines are added
+                pre.scrollTop = pre.scrollHeight;
+                // force reflow then animate
+                requestAnimationFrame(()=> code.classList.add('animate'));
+                i++;
+                setTimeout(step, 1500);
+            } else {
+                setTimeout(()=> {
+                overlay.remove();
+                document.body.style.overflow = prevOverflow || '';
+                doneCb();
+                }, 900);
+            }
+            }
+            step();
+        }
+
+        // --- Scroll reveal using IntersectionObserver ---
+        function initScrollReveal(){
+            const obs = new IntersectionObserver((entries)=>{
+                entries.forEach(en=>{
+                    if(en.isIntersecting){
+                        en.target.classList.add('reveal-show');
+                        obs.unobserve(en.target);
+                    }
+                });
+            }, { threshold: 0.12 });
+            document.querySelectorAll('[data-reveal]').forEach(el=>{
+                el.classList.add('reveal-init');
+                obs.observe(el);
+            });
+        }
+
+        // --- Modal system ---
+        function openProjectModal(project){
+            const overlay = document.createElement('div');
+            overlay.className = "fixed inset-0 z-[90] flex items-center justify-center p-4";
+            overlay.innerHTML = `
+                <div class="absolute inset-0 bg-specter-dark/90 dark:bg-specter-dark/95 backdrop-blur-sm transition-opacity duration-300"></div>
+                <div class="relative w-full max-w-5xl h-[80vh] rounded-xl overflow-hidden shadow-2xl transition-all duration-300 transform scale-100 bg-specter-card border border-specter-neon/50">
+                    <div class="p-4 flex justify-between items-center border-b border-specter-neon/30">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-8 h-8 text-specter-neon">🔎</div>
+                            <h2 class="text-xl font-display font-bold text-specter-neon">${project.title} <span class="text-sm font-mono text-specter-secondary">(LIVE SIMULATION)</span></h2>
+                        </div>
+                        <button class="p-2 rounded-full text-specter-neon hover:bg-specter-neon/10 transition modal-close">${SVG.X}</button>
+                    </div>
+                    <div class="h-[calc(100%-60px)] overflow-y-auto p-4 modal-body"></div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            overlay.querySelector('.modal-close').addEventListener('click', ()=> overlay.remove());
+            overlay.addEventListener('click', (e)=> { if(e.target===overlay) overlay.remove(); });
+            // fill demo content per project id
+            const body = overlay.querySelector('.modal-body');
+            if(project.id === 1){
+                body.appendChild(renderAnalyticsDemo());
+            } else if(project.id === 2){
+                body.appendChild(renderDesignDemo());
+            } else if(project.id === 3){
+                body.appendChild(renderEcommerceDemo());
+            } else {
+                body.innerHTML = `<p class="p-4">Simulated demo environment for ${project.title}.</p>`;
+            }
+        }
+
+        // --- Demo renderers (simple DOM) ---
+        function renderAnalyticsDemo(){
+            const container = document.createElement('div');
+            container.className = "p-6 grid grid-cols-1 lg:grid-cols-3 gap-6 font-mono";
+            // small stats
+            const data = [8,12,6,15,10,18,14];
+            const totalViews = data.reduce((a,b)=>a+b,0);
+            const growth = ((data[data.length-1]-data[0])/data[0])*100;
+            container.innerHTML = `
+                <div class="lg:col-span-3"><h3 class="text-lg font-display text-specter-secondary mb-4">Live Traffic & Engagement Metrics</h3></div>
+                <div class="p-4 rounded-lg bg-specter-dark/50 border border-specter-neon/30">
+                    <p class="text-sm text-specter-text-dark">Total Views (7s)</p>
+                    <p class="text-3xl font-bold text-specter-neon mt-1">${totalViews}k</p>
+                </div>
+                <div class="p-4 rounded-lg bg-specter-dark/50 border border-specter-neon/30">
+                    <p class="text-sm text-specter-text-dark">Engagement Rate</p>
+                    <p class="text-3xl font-bold text-specter-neon mt-1">${Math.round(Math.random()*5+5)}%</p>
+                </div>
+                <div class="p-4 rounded-lg bg-specter-dark/50 border border-specter-neon/30">
+                    <p class="text-sm text-specter-text-dark">Growth</p>
+                    <p class="text-3xl font-bold mt-1 ${growth>=0 ? 'text-green-400' : 'text-specter-secondary'}">${growth.toFixed(2)}%</p>
+                </div>
+                <div class="lg:col-span-3 p-6 rounded-lg bg-specter-dark/50 border border-specter-neon/30">
+                    <h4 class="font-display text-specter-neon mb-4">Traffic Stream (Per Second)</h4>
+                    <div class="flex items-end h-64 border-b border-l border-specter-neon/50 pr-2" id="bar-wrap"></div>
+                    <p class="text-xs text-center text-specter-text-dark mt-2">Time (T-7s to T-0s)</p>
+                </div>
+            `;
+            // bars
+            const barWrap = container.querySelector('#bar-wrap');
+            data.forEach((val,idx)=>{
+                const bar = document.createElement('div');
+                bar.title = `${val}k`;
+                bar.style.height = `${val*4}px`;
+                bar.className = `w-1/4 mx-1 ${idx===data.length-1? 'bg-specter-secondary' : 'bg-specter-neon/60'} rounded-t-sm transition-all duration-1000 ease-linear`;
+                barWrap.appendChild(bar);
+            });
+            // animate random updates
+            setInterval(()=>{
+                const all = barWrap.children;
+                for(let i=0;i<all.length-1;i++){
+                    all[i].style.height = `${(Math.floor(Math.random()*14)+6)*4}px`;
+                }
+            }, 2000);
+            return container;
+        }
+
+        function renderDesignDemo(){
+            const container = document.createElement('div');
+            container.className = "grid grid-cols-4 h-full";
+            container.innerHTML = `
+                <div class="col-span-1 p-4 border-r border-specter-neon/30 dark:bg-specter-dark/50">
+                    <h3 class="text-lg font-display text-specter-neon mb-4">MDS Explorer</h3>
+                    <div id="mds-tabs"></div>
+                </div>
+                <div class="col-span-3 p-6 dark:bg-specter-dark/30">
+                    <h4 class="text-xl font-display text-specter-secondary mb-6" id="mds-title">Buttons Components</h4>
+                    <div id="mds-panel" class="space-y-6"></div>
+                </div>
+            `;
+            const tabs = ['Buttons','Inputs','Cards','Layouts'];
+            const tabsWrap = container.querySelector('#mds-tabs');
+            const panel = container.querySelector('#mds-panel');
+            const title = container.querySelector('#mds-title');
+            tabs.forEach(t=>{
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-2 mb-2 rounded-md font-mono text-sm ${t==='Buttons' ? 'bg-specter-secondary text-specter-dark font-bold' : 'dark:text-specter-text-dark hover:bg-specter-neon/10'}`;
+                btn.textContent = t;
+                btn.addEventListener('click', ()=>{
+                    // switch
+                    tabsWrap.querySelectorAll('button').forEach(b=> b.classList.remove('bg-specter-secondary','text-specter-dark','font-bold'));
+                    btn.classList.add('bg-specter-secondary','text-specter-dark','font-bold');
+                    title.textContent = t + " Components";
+                    renderTab(t);
+                });
+                tabsWrap.appendChild(btn);
+            });
+            function renderTab(name){
+                panel.innerHTML = '';
+                if(name === 'Buttons'){
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'flex space-x-4';
+                    const pbtn = document.createElement('button'); pbtn.className = 'px-4 py-2 rounded-lg font-mono text-sm bg-specter-neon text-specter-dark'; pbtn.textContent = 'Primary Action';
+                    const sbtn = document.createElement('button'); sbtn.className = 'px-4 py-2 rounded-lg font-mono text-sm bg-specter-secondary text-specter-dark'; sbtn.textContent = 'Secondary Action';
+                    const gbtn = document.createElement('button'); gbtn.className = 'px-4 py-2 rounded-lg font-mono text-sm bg-specter-card border border-specter-neon text-specter-neon'; gbtn.textContent = 'Ghost Button';
+                    wrapper.appendChild(pbtn); wrapper.appendChild(sbtn); wrapper.appendChild(gbtn);
+                    panel.appendChild(wrapper);
+                } else if (name === 'Inputs') {
+                    panel.innerHTML = `<div class="space-y-4"><label class="text-specter-text-dark text-sm">Username</label><input class="w-full p-2 rounded-lg font-mono bg-specter-dark/50 border border-specter-secondary/50" placeholder="Enter username"/><label class="text-specter-text-dark text-sm">Project Title</label><input class="w-full p-2 rounded-lg font-mono bg-specter-dark/50 border border-specter-secondary/50" placeholder="Project Title"/></div>`;
+                } else if (name === 'Cards') {
+                    panel.innerHTML = `<div class="grid grid-cols-2 gap-4"><div class="p-4 rounded-lg bg-specter-card border border-specter-neon/30"><h5 class="font-bold text-specter-neon">Info Card</h5><p class="text-xs text-specter-text-dark">Reusable structure for data display.</p></div><div class="p-4 rounded-lg bg-specter-card border border-specter-secondary/30"><h5 class="font-bold text-specter-secondary">Alert Card</h5><p class="text-xs text-specter-text-dark">Used for critical system feedback.</p></div></div>`;
+                } else {
+                    panel.innerHTML = `<p class="text-specter-text-dark">Layout components ensure consistent spacing and grid patterns. Example: 3-column data grid.</p>`;
+                }
+            }
+            renderTab('Buttons');
+            return container;
+        }
+
+        function renderEcommerceDemo(){
+            const container = document.createElement('div');
+            container.className = "p-6";
+            container.innerHTML = `
+                <h3 class="text-2xl font-display text-specter-neon mb-6">Product Catalogue Simulation</h3>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6" id="product-grid"></div>
+                <div class="mt-10 p-6 rounded-xl bg-specter-secondary/20 border border-specter-secondary/50 flex justify-between items-center">
+                    <p class="font-mono text-specter-secondary">4 items in cart. Ready for fast, secure checkout.</p>
+                    <button class="flex items-center px-4 py-2 bg-specter-secondary text-specter-dark rounded-lg font-bold hover:bg-specter-neon transition">Checkout ${SVG.ArrowRight}</button>
+                </div>
+            `;
+            const grid = container.querySelector('#product-grid');
+            const products = [
+                {name:"High-Fidelity Headset", price:199.99},
+                {name:"Quantum Keyboard", price:120.50},
+                {name:"Ergo Mousepad", price:19.99},
+                {name:"Specter Monitor", price:499.00},
+            ];
+            products.forEach(p=>{
+                const card = document.createElement('div');
+                card.className = "p-4 rounded-xl bg-specter-dark/50 border border-specter-secondary/30 transition hover:border-specter-neon";
+                card.innerHTML = `<div class="h-32 bg-gray-700 rounded-lg flex items-center justify-center mb-3"><span class="text-specter-neon font-display">Product Image</span></div>
+                    <h5 class="font-sans font-bold text-lg text-specter-neon">${p.name}</h5>
+                    <p class="text-specter-secondary font-mono mb-2">$${p.price.toFixed(2)}</p>
+                    <button class="w-full px-3 py-1 bg-specter-secondary text-specter-dark rounded-md text-sm font-mono hover:bg-specter-neon transition">Add to Cart</button>`;
+                grid.appendChild(card);
+            });
+            return container;
+        }
+
+        // --- Contact form handling ---
+        function initContactForm(formEl){
+            if(!formEl) return;
+            let statusEl = formEl.querySelector('#status-msg');
+            if(!statusEl){
+                statusEl = document.createElement('div');
+                statusEl.id = 'status-msg';
+                formEl.prepend(statusEl);
+            }
+            formEl.addEventListener('submit', async (e)=>{
+                e.preventDefault();
+                const formData = new FormData(formEl);
+                const email = formData.get('email') || '';
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if(!emailRegex.test(email)){
+                    statusEl.textContent = "ERROR: Invalid email syntax. Check your input.";
+                    statusEl.className = 'p-3 rounded-lg border font-mono text-sm bg-red-900/50 text-red-400 border-red-500';
+                    return;
+                }
+                statusEl.textContent = "PROCESSING: Sending message...";
+                statusEl.className = 'p-3 rounded-lg border font-mono text-sm bg-blue-900/50 text-blue-400 border-blue-500';
+                const btn = formEl.querySelector('button[type="submit"]');
+                if(btn) btn.disabled = true;
+                try {
+                    const res = await fetch(formEl.action, {
+                        method: formEl.method || 'POST',
+                        headers: { 'Accept': 'application/json' },
+                        body: formData
+                    });
+                    if(res.ok){
+                        statusEl.textContent = "SUCCESS: Message transmitted. Specter will respond ASAP.";
+                        statusEl.className = 'p-3 rounded-lg border font-mono text-sm bg-green-900/50 text-green-400 border-green-500';
+                        formEl.reset();
+                    } else {
+                        const data = await res.json().catch(()=>null);
+                        const msg = (data && (data.error || data.message)) ? (data.error || data.message) : 'Server error. Please try again later.';
+                        statusEl.textContent = `ERROR: ${msg}`;
+                        statusEl.className = 'p-3 rounded-lg border font-mono text-sm bg-red-900/50 text-red-400 border-red-500';
+                    }
+                } catch(err){
+                    statusEl.textContent = "ERROR: Network error. Please check your connection.";
+                    statusEl.className = 'p-3 rounded-lg border font-mono text-sm bg-red-900/50 text-red-400 border-red-500';
+                } finally {
+                    if(btn) btn.disabled = false;
+                }
+            });
+        }
+
+        // --- Build main UI (vanilla DOM) ---
+        function buildApp(){
+            const root = document.getElementById('root');
+            root.innerHTML = `
+                <div class="min-h-screen transition-colors duration-500 bg-specter-dark text-specter-text-dark" id="app-root">
+                    <style>
+                        .bg-specter-light .dark\\:text-specter-text-dark { color: rgb(176 188 224 / var(--tw-text-opacity, 1)); }
+                        .bg-specter-light .text-specter-neon { color: #008899; }
+                    </style>
+                    <!-- Modal placeholder (opened via JS) -->
+                    <header class="sticky top-0 z-50 transition-colors duration-500 bg-specter-dark/95 backdrop-blur-sm shadow-xl shadow-specter-card/50 border-b border-specter-card">
+                        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+                            <a href="#hero" class="text-3xl font-display font-extrabold tracking-widest text-specter-neon transition duration-300">SPECTER</a>
+                            <nav class="hidden md:flex space-x-6 font-mono" id="nav-links">
+                                <a class="block px-3 py-2 rounded-md text-sm font-mono hover:text-specter-neon transition duration-300 text-specter-card" href="#about">ABOUT</a>
+                                <a class="block px-3 py-2 rounded-md text-sm font-mono hover:text-specter-neon transition duration-300 text-specter-card" href="#stack">STACK</a>
+                                <a class="block px-3 py-2 rounded-md text-sm font-mono hover:text-specter-neon transition duration-300 text-specter-card" href="#projects">PROJECTS</a>
+                                <a class="block px-3 py-2 rounded-md text-sm font-mono hover:text-specter-neon transition duration-300 text-specter-card" href="#contact">CONTACT</a>
+                            </nav>
+                            <div class="flex items-center space-x-4">
+                                <button id="theme-toggle" class="p-2 rounded-full transition-all duration-300 text-specter-neon border border-specter-neon/50 hover:bg-specter-neon hover:text-specter-dark focus:outline-none focus:ring-2 focus:ring-specter-neon">${SVG.Sun}</button>
+                                <button id="mobile-menu-btn" class="md:hidden p-2 text-specter-neon">${SVG.Menu}</button>
+                            </div>
+                        </div>
+                        <div class="md:hidden p-4 border-t bg-specter-card border-specter-neon/20 hidden" id="mobile-menu">
+                            <a class="block px-3 py-2 rounded-md text-sm font-mono hover:text-specter-neon transition duration-300 text-specter-card" href="#about">ABOUT</a>
+                            <a class="block px-3 py-2 rounded-md text-sm font-mono hover:text-specter-neon transition duration-300 text-specter-card" href="#stack">STACK</a>
+                            <a class="block px-3 py-2 rounded-md text-sm font-mono hover:text-specter-neon transition duration-300 text-specter-card" href="#projects">PROJECTS</a>
+                            <a class="block px-3 py-2 rounded-md text-sm font-mono hover:text-specter-neon transition duration-300 text-specter-card" href="#contact">CONTACT</a>
+                        </div>
+                    </header>
+
+                    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <section id="hero" class="pt-24 pb-32 text-center overflow-hidden">
+                            <div class="flex flex-col items-center">
+                                <h2 class="text-xl font-mono text-specter-secondary mb-4" data-reveal>&gt; FRONTEND.DEVELOPER</h2>
+                                <h1 class="text-6xl sm:text-8xl lg:text-9xl font-display font-black tracking-tighter mb-6 text-specter-neon" data-reveal>SPECTER</h1>
+                                <p class="max-w-4xl mx-auto text-xl sm:text-2xl font-sans mb-10 text-specter-text-dark" data-reveal>Leveraging expertise in the React ecosystem, modern HTML, CSS, JavaScript, and Tailwind CSS, I architect and deliver pixel-perfect, highly-optimized user interfaces with a core focus on advanced state management and seamless cross-device performance.</p>
+                                <a href="#projects" class="inline-flex items-center px-8 py-3 font-mono font-bold rounded-lg text-specter-dark bg-specter-neon shadow-xl shadow-specter-neon/50 hover:bg-white hover:shadow-specter-neon/80 transition duration-300 transform hover:scale-105">VIEW CODEBASE ${SVG.ArrowRight}</a>
+                            </div>
+                        </section>
+
+                        <section id="about" class="py-20">
+                            <h2 class="text-4xl font-display font-bold text-center mb-16"><span class="text-specter-neon">// EXPERTISE</span></h2>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                <div class="p-6 rounded-xl border border-specter-neon/30 dark:bg-specter-card bg-specter-light shadow-xl" data-reveal>
+                                    <div class="flex items-center space-x-3 mb-4"><div class="w-6 h-6 text-specter-secondary">⚡</div><h3 class="text-xl font-display font-bold text-specter-neon">React & SPA Architecture</h3></div>
+                                    <p class="text-sm text-specter-text-dark">Building modular, reusable components and managing complex application state using modern patterns (Hooks, Context, Zustand).</p>
+                                </div>
+                                <div class="p-6 rounded-xl border border-specter-neon/30 dark:bg-specter-card bg-specter-light shadow-xl" data-reveal>
+                                    <div class="flex items-center space-x-3 mb-4"><div class="w-6 h-6 text-specter-secondary">⚡</div><h3 class="text-xl font-display font-bold text-specter-neon">Performance & Optimization</h3></div>
+                                    <p class="text-sm text-specter-text-dark">Focused on Core Web Vitals, lazy loading, code splitting, and memoization to ensure lightning-fast load times and smooth user experience.</p>
+                                </div>
+                                <div class="p-6 rounded-xl border border-specter-neon/30 dark:bg-specter-card bg-specter-light shadow-xl" data-reveal>
+                                    <div class="flex items-center space-x-3 mb-4"><div class="w-6 h-6 text-specter-secondary">🎨</div><h3 class="text-xl font-display font-bold text-specter-neon">Atomic UI/UX Design</h3></div>
+                                    <p class="text-sm text-specter-text-dark">Translating Figma designs into responsive, cross-browser, and accessible interfaces, utilizing Tailwind CSS for utility-first styling.</p>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section id="stack" class="py-20">
+                            <h2 class="text-4xl font-display font-bold text-center mb-16"><span class="text-specter-neon">// DEV STACK</span></h2>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 text-center" id="tech-grid"></div>
+                        </section>
+
+                        <section id="projects" class="py-20">
+                            <h2 class="text-4xl font-display font-bold text-center mb-16"><span class="text-specter-neon">// PROJECTS</span></h2>
+                            <div class="space-y-12" id="projects-list"></div>
+                        </section>
+
+                        <section id="contact" class="py-20">
+                            <h2 class="text-4xl font-display font-bold text-center mb-16"><span class="text-specter-neon">// HIRE SPECTER</span></h2>
+                            <div class="max-w-xl mx-auto p-8 rounded-xl border border-specter-secondary/30 dark:bg-specter-card bg-white shadow-2xl">
+                                <p class="text-center font-sans mb-6 text-specter-text-dark">If you need a reliable, high-performing frontend developer, I'm ready for the deployment.</p>
+                                <form action="https://formspree.io/f/xkgkwyld" method="POST" id="contact-form" class="space-y-4">
+                                    <div id="status-msg"></div>
+                                    <div>
+                                        <label class="block text-sm font-mono mb-1">Name</label>
+                                        <input name="name" required class="w-full px-4 py-3 font-mono rounded-lg border focus:ring-2 focus:ring-specter-neon focus:border-specter-neon bg-specter-dark border-specter-secondary/50 text-specter-neon"/>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-mono mb-1">Email</label>
+                                        <input name="email" type="email" required class="w-full px-4 py-3 font-mono rounded-lg border focus:ring-2 focus:ring-specter-neon focus:border-specter-neon bg-specter-dark border-specter-secondary/50 text-specter-neon" placeholder="email@example.com"/>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-mono mb-1">Message</label>
+                                        <textarea name="message" rows="4" required class="w-full px-4 py-3 font-mono rounded-lg border focus:ring-2 focus:ring-specter-neon focus:border-specter-neon bg-specter-dark border-specter-secondary/50 text-specter-neon"></textarea>
+                                    </div>
+                                    <button type="submit" class="w-full px-4 py-3 font-mono font-bold rounded-lg text-specter-dark bg-specter-secondary shadow-xl hover:bg-white transition"> // EXECUTE_TRANSMISSION()</button>
+                                </form>
+                            </div>
+                        </section>
+                    </main>
+
+                    <footer class="py-8 mt-12 text-center dark:bg-specter-card bg-gray-100 border-t dark:border-specter-neon/10 border-gray-300">
+                        <p class="text-sm font-mono dark:text-specter-text-dark text-gray-600">// 2024 SPECTER. Built with Vanilla JS &amp; Tailwind.</p>
+                    </footer>
+                </div>
+            `;
+            // normalize project tags: remove Next.js / Redux/Zustand / Figma and add JavaScript, HTML, CSS where appropriate
+            PROJECTS_DATA.forEach(p => {
+                const banned = ['Next.js', 'Redux/Zustand', 'Figma'];
+                const hasBanned = p.tags.some(t => banned.includes(t));
+                if (hasBanned) {
+                    // remove banned tags and ensure JS/HTML/CSS exist
+                    p.tags = p.tags.filter(t => !banned.includes(t));
+                    ['JavaScript','HTML','CSS'].forEach(t => { if (!p.tags.includes(t)) p.tags.push(t); });
+                }
+            });
+
+            // Watch the tech grid and replace unwanted tech entries with JavaScript / HTML / CSS
+            const replacements = {
+                'Redux/Zustand': { name: 'JavaScript', color: 'text-yellow-300', icon: '🟨' },
+                'Next.js':       { name: 'HTML',       color: 'text-orange-400', icon: '📄' },
+                'Figma':         { name: 'CSS',        color: 'text-blue-400',   icon: '🎨' },
+            };
+
+            const techGridObserver = new MutationObserver((mutations, obs) => {
+                const grid = document.getElementById('tech-grid');
+                if (!grid) return;
+                const children = Array.from(grid.children);
+                let mutated = false;
+                children.forEach(child => {
+                    const span = child.querySelector('span');
+                    if (!span) return;
+                    const label = span.textContent.trim();
+                    if (replacements[label]) {
+                        const r = replacements[label];
+                        child.innerHTML = `<p class="text-4xl mb-2">${r.icon}</p><span class="font-mono font-semibold text-sm ${r.color}">${r.name}</span>`;
+                        mutated = true;
+                    }
+                });
+                if (mutated) obs.disconnect();
+            });
+
+            // start observing; when techs are appended the observer will update them
+            const existingGrid = document.getElementById('tech-grid');
+            if (existingGrid && existingGrid.children.length) {
+                // already populated - run immediately
+                techGridObserver.takeRecords();
+                techGridObserver.disconnect();
+                const children = Array.from(existingGrid.children);
+                children.forEach(child => {
+                    const span = child.querySelector('span');
+                    if (!span) return;
+                    const label = span.textContent.trim();
+                    if (replacements[label]) {
+                        const r = replacements[label];
+                        child.innerHTML = `<p class="text-4xl mb-2">${r.icon}</p><span class="font-mono font-semibold text-sm ${r.color}">${r.name}</span>`;
+                    }
+                });
+            } else {
+                techGridObserver.observe(document.getElementById('tech-grid') || document.body, { childList: true, subtree: true });
+            }
+            // populate tech grid
+            const techs = [
+                { name: 'React', color: 'text-specter-neon', icon: '⚛️' },
+                { name: 'TypeScript', color: 'text-blue-500', icon: '🟦' },
+                { name: 'Tailwind CSS', color: 'text-cyan-400', icon: '🌬️' },
+                { name: 'Next.js', color: 'text-gray-400', icon: '🚀' },
+                { name: 'Redux/Zustand', color: 'text-purple-500', icon: '🧠' },
+                { name: 'Figma', color: 'text-red-500', icon: '📐' },
+            ];
+            const techGrid = document.getElementById('tech-grid');
+            techs.forEach((t,idx)=>{
+                const item = document.createElement('div');
+                item.className = "p-4 rounded-xl dark:bg-specter-card bg-white shadow-lg hover:shadow-specter-secondary/30 transform hover:scale-110 transition duration-300";
+                item.setAttribute('data-reveal','');
+                item.innerHTML = `<p class="text-4xl mb-2">${t.icon}</p><span class="font-mono font-semibold text-sm ${t.color}">${t.name}</span>`;
+                techGrid.appendChild(item);
+            });
+
+            // populate projects
+            const list = document.getElementById('projects-list');
+            PROJECTS_DATA.forEach((p,idx)=>{
+                const el = document.createElement('div');
+                el.className = "flex flex-col md:flex-row p-6 md:p-8 rounded-xl border border-specter-secondary/20 dark:bg-specter-card bg-white shadow-xl hover:shadow-specter-neon/30 transition duration-300";
+                el.setAttribute('data-reveal','');
+                el.innerHTML = `
+                    <div class="md:w-3/4">
+                        <h3 class="text-2xl font-display font-bold text-specter-neon mb-2">${p.title}</h3>
+                        <p class="font-sans dark:text-specter-text-dark text-gray-700 mb-4">${p.description}</p>
+                        <div class="flex flex-wrap gap-2">${p.tags.map(tag=>`<span class="px-3 py-1 text-xs font-mono rounded-full bg-specter-secondary/20 text-specter-secondary">${tag}</span>`).join('')}</div>
+                    </div>
+                    <div class="md:w-1/4 flex justify-end items-start pt-4 md:pt-0">
+                        <button class="flex items-center text-specter-neon font-mono hover:text-specter-secondary transition duration-200 demo-btn" data-id="${p.id}">View Demo ${SVG.Play}</button>
+                    </div>
+                `;
+                list.appendChild(el);
+            });
+
+            // init reveals
+            initScrollReveal();
+
+            // mobile menu toggle
+            const mobileBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileBtn.addEventListener('click', ()=> {
+                const open = !mobileMenu.classList.contains('hidden');
+                mobileMenu.classList.toggle('hidden', open);
+                mobileBtn.innerHTML = open ? SVG.Menu : SVG.X;
+            });
+
+            // theme toggle
+            const themeToggle = document.getElementById('theme-toggle');
+            const docRoot = document.documentElement;
+            let isDark = localStorage.getItem('theme') === 'dark' || (!localStorage.getItem('theme') && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            function applyTheme(){
+                if(isDark){
+                    docRoot.classList.add('dark');
+                    document.getElementById('app-root').classList.replace('bg-specter-light','bg-specter-dark');
+                    themeToggle.innerHTML = SVG.Sun;
+                    localStorage.setItem('theme','dark');
+                } else {
+                    docRoot.classList.remove('dark');
+                    document.getElementById('app-root').classList.replace('bg-specter-dark','bg-specter-light');
+                    themeToggle.innerHTML = SVG.Moon;
+                    localStorage.setItem('theme','light');
+                }
+            }
+            applyTheme();
+            themeToggle.addEventListener('click', ()=> { isDark = !isDark; applyTheme(); });
+
+            // demo buttons
+            document.querySelectorAll('.demo-btn').forEach(btn=>{
+                btn.addEventListener('click', (e)=>{
+                    const id = Number(btn.dataset.id);
+                    const project = PROJECTS_DATA.find(p=>p.id===id);
+                    openProjectModal(project);
+                });
+            });
+
+            // contact form
+            const contactForm = document.getElementById('contact-form');
+            initContactForm(contactForm);
+
+            // anchor smooth scroll
+            document.querySelectorAll('a[href^="#"]').forEach(a=>{
+                a.addEventListener('click', (e)=>{
+                    const href = a.getAttribute('href');
+                    if(href.length > 1){
+                        e.preventDefault();
+                        const target = document.querySelector(href);
+                        if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+                    }
+                });
+            });
+        }
+
+        // --- initial boot: show preloader then build app ---
+        createPreloader(buildApp);
+    })();
+    </script>
+</body>
+</html>
